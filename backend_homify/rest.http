@@ -1,0 +1,510 @@
+### ============================================
+### API Tests - Plateforme de Location Immobilière
+### ============================================
+
+@baseUrl = http://127.0.0.1:8000/api
+@accessToken = 
+@refreshToken = 
+@propertyId = 
+@userId = 
+
+### ============================================
+### 1. AUTHENTIFICATION
+### ============================================
+
+### 1.1 Inscription d'un locataire
+POST {{baseUrl}}/auth/register/
+Content-Type: application/json
+
+{
+  "email": "tenant@test.com",
+  "password": "SecurePass123!",
+  "password_confirm": "SecurePass123!",
+  "first_name": "Jean",
+  "last_name": "Dupont",
+  "phone": "237612345678",
+  "role": "TENANT"
+}
+
+### 1.2 Inscription d'un propriétaire
+POST {{baseUrl}}/auth/register/
+Content-Type: application/json
+
+{
+  "email": "landlord@test.com",
+  "password": "SecurePass123!",
+  "password_confirm": "SecurePass123!",
+  "first_name": "Marie",
+  "last_name": "Martin",
+  "phone": "237698765432",
+  "role": "LANDLORD"
+}
+
+### 1.3 Connexion (locataire)
+# @name login
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+  "email": "tenant@test.com",
+  "password": "SecurePass123!"
+}
+
+###
+
+@accessToken = {{login.response.body.access}}
+@refreshToken = {{login.response.body.refresh}}
+
+### 1.4 Connexion (propriétaire)
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+  "email": "landlord@test.com",
+  "password": "SecurePass123!"
+}
+
+### 1.5 Rafraîchir le token
+POST {{baseUrl}}/auth/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "{{refreshToken}}"
+}
+
+### ============================================
+### 2. PROFIL UTILISATEUR
+### ============================================
+
+### 2.1 Obtenir mon profil
+GET {{baseUrl}}/auth/me/
+Authorization: Bearer {{accessToken}}
+
+### 2.2 Modifier mon profil
+PATCH {{baseUrl}}/auth/me/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "first_name": "Jean-Pierre",
+  "phone": "237699887766"
+}
+
+### 2.3 Changer mon mot de passe
+POST {{baseUrl}}/auth/me/password/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "old_password": "SecurePass123!",
+  "new_password": "NewSecurePass456!",
+  "new_password_confirm": "NewSecurePass456!"
+}
+
+### ============================================
+### 3. ÉQUIPEMENTS (AMENITIES)
+### ============================================
+
+### 3.1 Lister tous les équipements
+GET {{baseUrl}}/amenities/
+
+### 3.2 Créer un équipement (ADMIN)
+POST {{baseUrl}}/amenities/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Piscine",
+  "icon": "pool",
+  "category": "EXTERIOR"
+}
+
+### ============================================
+### 4. ANNONCES (PROPERTIES)
+### ============================================
+
+### 4.1 Lister toutes les annonces (public)
+GET {{baseUrl}}/properties/
+
+### 4.2 Recherche avec filtres
+GET {{baseUrl}}/properties/?city=Yaoundé&type=APARTMENT&min_price=300000&max_price=600000&furnished=true&ordering=-created_at
+
+### 4.3 Recherche textuelle
+GET {{baseUrl}}/properties/?search=centre-ville
+
+### 4.4 Filtrer par nombre de chambres
+GET {{baseUrl}}/properties/?number_of_bedrooms=2&number_of_bathrooms=1
+
+### 4.5 Détails d'une annonce
+GET {{baseUrl}}/properties/1/
+
+### 4.6 Créer une annonce (Propriétaire)
+POST {{baseUrl}}/properties/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Bel appartement 2 pièces centre-ville",
+  "description": "Magnifique appartement meublé situé en plein centre-ville de Yaoundé, quartier Bastos. Proche de toutes commodités : supermarchés, écoles, transports. Immeuble sécurisé avec gardien 24h/24.",
+  "type": "APARTMENT",
+  "surface": 45.0,
+  "number_of_rooms": 2,
+  "number_of_bedrooms": 1,
+  "number_of_bathrooms": 1,
+  "floor": 3,
+  "furnished": true,
+  "monthly_rent": "450000.00",
+  "charges": "25000.00",
+  "charges_included": false,
+  "deposit": "900000.00",
+  "agency_fees": "450000.00",
+  "address": {
+    "street_address": "123 Avenue Charles de Gaulle",
+    "city": "Yaoundé",
+    "postal_code": "00237",
+    "district": "Bastos",
+    "latitude": 3.8667,
+    "longitude": 11.5167
+  },
+  "amenity_ids": [1, 2, 5],
+  "status": "PENDING"
+}
+
+### 4.7 Créer une annonce Studio
+POST {{baseUrl}}/properties/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Studio meublé Essos",
+  "description": "Petit studio idéal pour étudiant ou jeune professionnel. Meublé et équipé. Quartier calme et sécurisé.",
+  "type": "STUDIO",
+  "surface": 25.0,
+  "number_of_rooms": 1,
+  "number_of_bedrooms": 1,
+  "number_of_bathrooms": 1,
+  "furnished": true,
+  "monthly_rent": "150000.00",
+  "charges": "10000.00",
+  "charges_included": false,
+  "deposit": "300000.00",
+  "agency_fees": "150000.00",
+  "address": {
+    "street_address": "Rue de l'École",
+    "city": "Yaoundé",
+    "postal_code": "00237",
+    "district": "Essos"
+  },
+  "amenity_ids": [1, 2],
+  "status": "PENDING"
+}
+
+### 4.8 Modifier une annonce
+PATCH {{baseUrl}}/properties/{{propertyId}}/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "monthly_rent": "475000.00",
+  "description": "Description mise à jour avec plus de détails..."
+}
+
+### 4.9 Supprimer une annonce
+DELETE {{baseUrl}}/properties/{{propertyId}}/
+Authorization: Bearer {{accessToken}}
+
+### 4.10 Mes annonces (Propriétaire)
+GET {{baseUrl}}/properties/my_properties/
+Authorization: Bearer {{accessToken}}
+
+### 4.11 Annonces similaires
+GET {{baseUrl}}/properties/1/similar/
+
+### 4.12 Upload de photos (Multipart - à adapter)
+# POST {{baseUrl}}/properties/{{propertyId}}/upload_photos/
+# Authorization: Bearer {{accessToken}}
+# Content-Type: multipart/form-data
+# 
+# --boundary
+# Content-Disposition: form-data; name="photos"; filename="photo1.jpg"
+# Content-Type: image/jpeg
+# 
+# <binary data>
+
+### 4.13 Supprimer une photo
+DELETE {{baseUrl}}/properties/{{propertyId}}/photos/1/
+Authorization: Bearer {{accessToken}}
+
+### ============================================
+### 5. FAVORIS
+### ============================================
+
+### 5.1 Lister mes favoris
+GET {{baseUrl}}/favorites/
+Authorization: Bearer {{accessToken}}
+
+### 5.2 Ajouter aux favoris
+POST {{baseUrl}}/favorites/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "property_id": 1
+}
+
+### 5.3 Retirer des favoris
+DELETE {{baseUrl}}/favorites/1/
+Authorization: Bearer {{accessToken}}
+
+### ============================================
+### 6. MESSAGES
+### ============================================
+
+### 6.1 Lister tous mes messages
+GET {{baseUrl}}/messages/
+Authorization: Bearer {{accessToken}}
+
+### 6.2 Messages reçus (Boîte de réception)
+GET {{baseUrl}}/messages/inbox/
+Authorization: Bearer {{accessToken}}
+
+### 6.3 Messages envoyés
+GET {{baseUrl}}/messages/sent/
+Authorization: Bearer {{accessToken}}
+
+### 6.4 Envoyer un message au propriétaire
+POST {{baseUrl}}/messages/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "property_id": 1,
+  "subject": "Demande d'informations",
+  "content": "Bonjour, je suis intéressé par votre annonce. Serait-il possible de visiter le bien cette semaine ? Merci d'avance pour votre réponse."
+}
+
+### 6.5 Envoyer un message avec demande de visite
+POST {{baseUrl}}/messages/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "property_id": 1,
+  "subject": "Demande de visite",
+  "content": "Bonjour, votre appartement m'intéresse beaucoup. Je serais disponible pour une visite jeudi après-midi ou samedi matin. Merci de me confirmer votre disponibilité."
+}
+
+### 6.6 Marquer comme lu
+POST {{baseUrl}}/messages/1/mark_as_read/
+Authorization: Bearer {{accessToken}}
+
+### 6.7 Nombre de messages non lus
+GET {{baseUrl}}/messages/unread_count/
+Authorization: Bearer {{accessToken}}
+
+### ============================================
+### 7. SIGNALEMENTS (REPORTS)
+### ============================================
+
+### 7.1 Lister mes signalements
+GET {{baseUrl}}/reports/
+Authorization: Bearer {{accessToken}}
+
+### 7.2 Signaler une annonce
+POST {{baseUrl}}/reports/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "property": 5,
+  "reason": "FRAUD",
+  "description": "Cette annonce semble être une arnaque. Les photos ne correspondent pas à la description et le prix est anormalement bas pour ce quartier."
+}
+
+### 7.3 Signaler une annonce - Contenu inapproprié
+POST {{baseUrl}}/reports/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "property": 3,
+  "reason": "INAPPROPRIATE",
+  "description": "L'annonce contient des photos inappropriées et la description est trompeuse."
+}
+
+### 7.4 Signaler un utilisateur
+POST {{baseUrl}}/reports/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "reported_user": 10,
+  "reason": "INAPPROPRIATE",
+  "description": "Cet utilisateur envoie des messages inappropriés et insistants malgré mes refus."
+}
+
+### 7.5 Résoudre un signalement (ADMIN)
+POST {{baseUrl}}/reports/1/resolve/
+Authorization: Bearer {{accessToken}}
+
+### 7.6 Rejeter un signalement (ADMIN)
+POST {{baseUrl}}/reports/1/dismiss/
+Authorization: Bearer {{accessToken}}
+
+### ============================================
+### 8. ADMINISTRATION
+### ============================================
+
+### 8.1 Lister tous les utilisateurs (ADMIN)
+GET {{baseUrl}}/auth/admin/users/
+Authorization: Bearer {{accessToken}}
+
+### 8.2 Filtrer les utilisateurs par rôle (ADMIN)
+GET {{baseUrl}}/auth/admin/users/?role=LANDLORD
+Authorization: Bearer {{accessToken}}
+
+### 8.3 Rechercher un utilisateur (ADMIN)
+GET {{baseUrl}}/auth/admin/users/?search=dupont
+Authorization: Bearer {{accessToken}}
+
+### 8.4 Suspendre un utilisateur (ADMIN)
+POST {{baseUrl}}/auth/admin/users/{{userId}}/suspend/
+Authorization: Bearer {{accessToken}}
+
+### 8.5 Réactiver un utilisateur (ADMIN)
+POST {{baseUrl}}/auth/admin/users/{{userId}}/activate/
+Authorization: Bearer {{accessToken}}
+
+### 8.6 Annonces en attente de modération (ADMIN)
+GET {{baseUrl}}/properties/admin/properties/pending/
+Authorization: Bearer {{accessToken}}
+
+### 8.7 Approuver une annonce (ADMIN)
+POST {{baseUrl}}/properties/admin/properties/{{propertyId}}/approve/
+Authorization: Bearer {{accessToken}}
+
+### 8.8 Rejeter une annonce (ADMIN)
+POST {{baseUrl}}/properties/admin/properties/{{propertyId}}/reject/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "reason": "Photos de mauvaise qualité. Veuillez uploader des photos plus claires et professionnelles."
+}
+
+### ============================================
+### 9. TESTS DE VALIDATION
+### ============================================
+
+### 9.1 Test - Email invalide
+POST {{baseUrl}}/auth/register/
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "SecurePass123!",
+  "password_confirm": "SecurePass123!",
+  "first_name": "Test",
+  "last_name": "User",
+  "role": "TENANT"
+}
+
+### 9.2 Test - Mots de passe non correspondants
+POST {{baseUrl}}/auth/register/
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "SecurePass123!",
+  "password_confirm": "DifferentPass456!",
+  "first_name": "Test",
+  "last_name": "User",
+  "role": "TENANT"
+}
+
+### 9.3 Test - Connexion avec mauvais mot de passe
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+  "email": "tenant@test.com",
+  "password": "WrongPassword123!"
+}
+
+### 9.4 Test - Accès sans authentification
+GET {{baseUrl}}/auth/me/
+
+### 9.5 Test - Créer annonce sans token
+POST {{baseUrl}}/properties/
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "type": "APARTMENT"
+}
+
+### 9.6 Test - Message trop court
+POST {{baseUrl}}/messages/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "property_id": 1,
+  "subject": "Test",
+  "content": "Trop court"
+}
+
+### 9.7 Test - Prix négatif
+POST {{baseUrl}}/properties/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Test Prix",
+  "type": "APARTMENT",
+  "monthly_rent": "-100000",
+  "surface": 50,
+  "address": {
+    "city": "Yaoundé"
+  }
+}
+
+### ============================================
+### 10. SCÉNARIOS COMPLETS
+### ============================================
+
+### Scénario 1: Inscription → Connexion → Profil
+# 1. Inscription
+# 2. Connexion (récupérer le token)
+# 3. Consulter le profil
+
+### Scénario 2: Recherche → Détails → Favoris
+# 1. Rechercher des annonces
+# 2. Voir les détails d'une annonce
+# 3. Ajouter aux favoris
+# 4. Consulter mes favoris
+
+### Scénario 3: Créer annonce → Upload photos → Publier
+# 1. Créer une annonce (status=PENDING)
+# 2. Upload des photos
+# 3. Admin approuve l'annonce
+# 4. Annonce visible publiquement
+
+### Scénario 4: Contact propriétaire
+# 1. Trouver une annonce
+# 2. Envoyer un message au propriétaire
+# 3. Propriétaire reçoit le message
+# 4. Propriétaire marque comme lu
+
+### ============================================
+### NOTES D'UTILISATION
+### ============================================
+#
+# 1. Remplacez {{accessToken}} par votre token JWT après connexion
+# 2. Remplacez {{propertyId}} par l'ID d'une annonce existante
+# 3. Remplacez {{userId}} par l'ID d'un utilisateur
+# 4. Pour les tests, créez d'abord un compte puis connectez-vous
+# 5. Les requêtes sont dans l'ordre logique d'utilisation
+# 6. Vérifiez que votre serveur tourne sur http://127.0.0.1:8000
+#
+### ============================================
