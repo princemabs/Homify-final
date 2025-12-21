@@ -27,7 +27,7 @@ const SmartPropertySearch = () => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [n8nWorkflowUrl] = useState('http://localhost:5678/webhook/property-search');
+  const [n8nWorkflowUrl] = useState('https://ia.supahuman.site/webhook/property-search');
 
   // Get user's GPS location
   const getUserLocation = () => {
