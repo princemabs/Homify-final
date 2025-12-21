@@ -20,7 +20,7 @@ const MortgageCalculator = () => {
   const [result, setResult] = useState<MortgageResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [n8nWorkflowUrl] = useState('http://localhost:5678/webhook/mortgage-calculator');
+  const [n8nWorkflowUrl] = useState('https://ia.supahuman.site/webhook/mortgage-calculator');
   const [useMarketRate, setUseMarketRate] = useState(true);
 
   const formatCurrency = (value: string) => {

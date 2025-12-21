@@ -21,7 +21,7 @@ const ChatSupport = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Replace with your n8n webhook URL
-  const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/chatbot';
+  const N8N_WEBHOOK_URL = 'https://ia.supahuman.site/webhook/chatbot';
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {

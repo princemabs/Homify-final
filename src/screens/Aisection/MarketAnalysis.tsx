@@ -27,7 +27,7 @@ const MarketAnalysis = () => {
   const [error, setError] = useState('');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   
-  const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/market-analysis';
+  const N8N_WEBHOOK_URL = 'https://ia.supahuman.site/webhook/market-analysis';
 
   const getUserLocation = () => {
     setLocationLoading(true);
